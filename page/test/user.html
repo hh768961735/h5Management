@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>H+ 后台主题UI框架 - 主页示例</title>
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../../css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="../../css/animate.min.css" rel="stylesheet">
+    <link href="../../css/style.min.css?v=4.0.0" rel="stylesheet">
+    <link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link href="../../css/plugins/fileinput/fileinput.css" rel="stylesheet">
+    <link href="../../css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <base target="_blank">
+
+    <link rel="stylesheet" href="../../css/plugins/editor.md/editormd.css" />
+    <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon" />
+
+    <link rel="stylesheet" href="../../css/plugins/datetimepicker/bootstrap-datetimepicker.css">
+
+</head>
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>用户管理</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="panel-body" style="padding-bottom:0px;">
+                        <div id = "app" class="form-group" v-if="obj.onlineStatus != 1">
+                            <label class="col-sm-1 control-label">用户：</label>
+                            <div class="col-sm-3">
+                                <select  id="albumId" name="albumId" v-model="obj.albumId" @change="adChange" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                    <option v-for = "album in albums" :value="album.id">{{album.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="toolbar" class="btn-group">
+                            <button id="btn_add" type="button" class="btn btn-primary" style="position: relative;left: 30px;top: -25px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true" ></span>新增
+                            </button>
+                        </div>
+                        <table id="tb_content"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="../../js/jquery.min.js?v=2.1.4"></script>
+<script src="../../js/bootstrap.min.js?v=3.3.5"></script>
+<script src="../../js/plugins/layer/layer.min.js"></script>
+<script src="../../js/content.min.js"></script>
+<script src="../../js/welcome.min.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../js/vue/vue.js"></script>
+<script src="../../js/plugins/toastr/toastr.min.js"></script>
+<script src="../../js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="../../js/request.js"></script>
+<script>
+    new Vue({
+        el:'#app',
+        data:{
+            obj: {
+                id: '',
+                startTime: null,
+                albumId: '',
+                name: '',
+                lecturer: '',
+                courseType: 1,
+                imgUrl: '',
+                address: '',
+                brief: '',
+                briefMd: '',
+                sortNum: 10,
+                pptUrl: '',
+                extensionUrl: '',
+                recStatus: 0,
+                onlineStatus: 0,
+                pptStatus: 0,
+                channelId:0
+            },
+            albums:[]
+        },
+        mounted:function () {
+            var that = this;
+            $.ajax({
+                url:'https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage',
+                method:"GET",
+                dataType:"Json",
+                data: {
+
+                },
+                success:function (response) {
+                    //console.log(response);
+                    that.albums = response.data.projects;
+                    //console.log(that.albums);
+                    that.obj.albumId =  that.albums[0].id;
+                    //console.log(that.obj.albumId);
+                    var url = "https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage";
+                    var TableInit = function () {
+                        var oTableInit = new Object();
+                        //初始化Table
+                        oTableInit.Init = function () {
+                            $('#tb_content').bootstrapTable({
+                                url: url,         //请求后台的URL（*）
+                                method: 'get',                      //请求方式（*）
+                                toolbar: '#toolbar',                //工具按钮用哪个容器
+                                striped: true,                      //是否显示行间隔色
+                                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                                pagination: true,                   //是否显示分页（*）
+                                sortable: false,                     //是否启用排序
+                                sortOrder: "asc",                   //排序方式
+                                queryParams: oTableInit.queryParams,//传递参数（*）
+                                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                                pageSize: 10,                       //每页的记录行数（*）
+                                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                                search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                                strictSearch: false,
+                                showColumns: false,                  //是否显示所有的列
+                                showRefresh: false,                  //是否显示刷新按钮
+                                minimumCountColumns: 2,             //最少允许的列数
+                                clickToSelect: true,                //是否启用点击选中行
+                                height: 800,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                                showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                                cardView: false,                    //是否显示详细视图
+                                detailView: false,                   //是否显示父子表
+                                columns: [{
+                                    title: '序号',
+                                    formatter: function (value, row, index) {
+                                        return index + 1;
+                                    }
+                                },{
+                                    field: 'name',
+                                    title: '用户名称',
+                                },{
+                                    field: 'address',
+                                    title: '地址'
+                                },{
+                                    field: 'vipStatus',
+                                    title: '是否VIP',
+                                    formatter: function (value, row, index) {
+                                        var value = "否";
+                                        if (row.vipStatus == 1) {
+                                            value = "是";
+                                        }
+                                        return value;
+                                    }
+                                },{
+                                    field: 'email',
+                                    title: '邮箱'
+                                },{
+                                    field: 'id',
+                                    title: '操作',
+                                    formatter: function (value, row, index) {
+                                        value = '<div class="btn-group">' +
+                                            '<button class="btn-sm btn-primary" onclick="getModel(' + row.id + ')">修改</button>' +
+                                            '<button class="btn-sm btn-danger" onclick="delModel(' + row.id + ')">删除</button></div>';
+                                        return value;
+                                    }
+                                },
+                                ],
+                                responseHandler: function (data) {
+                                    // console.log(data);
+                                    return {
+                                        total: data.data.projects.length,
+                                        rows: data.data.projects
+                                    }
+                                }
+                            });
+                        };
+
+                        //得到查询的参数
+                        oTableInit.queryParams = function (params) {
+                            console.log(params);
+                            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                            };
+                            var qaStatus = $("#searchTxt_name").val();
+                            if (qaStatus != null && qaStatus != "") {
+                                if (qaStatus == "未回答") {
+                                    temp.qaStatus = 0;
+                                }
+                                if (qaStatus == "已回答") {
+                                    temp.qaStatus = 1;
+                                }
+                            }
+                            return temp;
+                        };
+                        return oTableInit;
+                    };
+                    var ButtonInit = function () {
+                        var oInit = new Object();
+                        var postdata = {};
+
+                        oInit.Init = function () {
+                            $("#btn_add").bind("click", function () {
+                                window.location.href = "update.html?albumId=" + albumId;
+                            });
+                        };
+                        return oInit;
+                    };
+
+                    //1.初始化Table
+                    var oTable = new TableInit();
+                    oTable.Init();
+
+                    //2.初始化Button的点击事件
+                    var oButtonInit = new ButtonInit();
+                    oButtonInit.Init();
+                }
+            })
+        },
+        methods:{
+            adChange:function (e) {
+                var div = document.getElementById("tb_content");
+                div.innerHTML = '';
+                let albums = this.albums;
+                for ( let i = 0; i<albums.length;i++){
+                    if (albums[i].name == e.target.value) {
+                        this.obj.albumId = albums[i].id;
+                    }
+                }
+                var albumId = this.obj.albumId;
+                console.log(albumId);
+                var url = "https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage";
+                var TableInit = function () {
+                    var oTableInit = new Object();
+                    oTableInit.Init = function () {
+                        $('#tb_content').bootstrapTable({
+                            url: url,         //请求后台的URL（*）
+                            method: 'get',                      //请求方式（*）
+                            toolbar: '#toolbar',                //工具按钮用哪个容器
+                            striped: true,                      //是否显示行间隔色
+                            cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                            pagination: true,                   //是否显示分页（*）
+                            sortable: false,                    //是否启用排序
+                            sortOrder: "asc",                   //排序方式
+                            queryParams: oTableInit.queryParams,//传递参数（*）
+                            sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                            pageNumber: 1,                       //初始化加载第一页，默认第一页
+                            pageSize: 10,                       //每页的记录行数（*）
+                            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                            search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                            strictSearch: false,
+                            showColumns: false,                  //是否显示所有的列
+                            showRefresh: false,                  //是否显示刷新按钮
+                            minimumCountColumns: 2,             //最少允许的列数
+                            clickToSelect: true,                //是否启用点击选中行
+                            height: 800,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                            uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                            showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                            cardView: false,                    //是否显示详细视图
+                            detailView: false,                   //是否显示父子表
+                            columns: [{
+                                title: '序号',
+                                formatter: function (value, row, index) {
+                                    return index + 1;
+                                }
+                            },{
+                                field: 'name',
+                                title: '课程名称',
+                            },{
+                                field: 'imgUrl',
+                                title: '封面图片',
+                                formatter: function (value, row, index) {
+                                    value = '<img style="width:200px" src="'+row.imgUrl+'" />';
+                                    return value;
+                                }
+                            },{
+                                field: 'lecturer',
+                                title: '讲师'
+                            },{
+                                field: 'courseType',
+                                title: '课程类型',
+                                formatter: function (value, row, index) {
+                                    var value;
+                                    switch (row.courseType) {
+                                        case 0:
+                                            value = '视频';
+                                            break;
+                                        case 1:
+                                            value = '音频';
+                                            break;
+                                    }
+
+                                    return value;
+                                }
+                            },{
+                                field: 'pptStatus',
+                                title: '是否有PPT',
+                                formatter: function (value, row, index) {
+                                    var value = "否";
+                                    if (row.pptStatus == 1) {
+                                        value = "是";
+                                    }
+                                    return value;
+                                }
+                            },{
+                                field: 'sortNum',
+                                title: '排序值'
+                            },{
+                                field: 'id',
+                                title: '操作',
+                                formatter: function (value, row, index) {
+                                    value = '<div class="btn-group">' +
+                                        '<button class="btn-sm btn-primary" onclick="getModel(' + row.id + ')">修改</button>' +
+                                        '<button class="btn-sm btn-danger" onclick="delModel(' + row.id + ')">删除</button></div>';
+                                    return value;
+                                }
+                            },
+                            ],
+                            responseHandler: function (data) {
+                                return {
+                                    total: data.data.length,
+                                    rows: data.data
+                                }
+                            }
+                        });
+                    };
+
+                    //得到查询的参数
+                    oTableInit.queryParams = function (params) {
+                        console.log(params)
+                        var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                        };
+                        var qaStatus = $("#searchTxt_name").val();
+                        if (qaStatus != null && qaStatus != "") {
+                            if (qaStatus == "未回答") {
+                                temp.qaStatus = 0;
+                            }
+                            if (qaStatus == "已回答") {
+                                temp.qaStatus = 1;
+                            }
+                        }
+                        return temp;
+                    };
+                    return oTableInit;
+                };
+                var ButtonInit = function () {
+                    var oInit = new Object();
+                    var postdata = {};
+
+                    oInit.Init = function () {
+                        $("#btn_add").bind("click", function () {
+                            window.location.href = "update.html?id ="+ id ;
+                        });
+                    };
+                    return oInit;
+                };
+                //重置当前页面
+                $("#tb_content").bootstrapTable('destroy');
+
+                //1.初始化Table
+                var oTable = new TableInit();
+                oTable.Init();
+                //2.初始化Button的点击事件
+                var oButtonInit = new ButtonInit();
+                oButtonInit.Init();
+            }
+        }
+    })
+    function getModel(id){
+        window.location.href = "update.html?id="+id;
+    }
+    function delModel(id){
+        var r = confirm("确认删除么？")
+        if (r == true) {
+            request({
+                url: 'lvb/course/delCourse/' + id,
+                data:{},
+                success: function (res) {
+                    if (res.status == 200 && res.data.code == 0){
+                        toastr.success("删除成功！");
+                        window.location.reload();
+                    } else{
+                        toastr.error("出错了！");
+                    }
+                }
+            })
+        }
+    }
+</script>
+</body>
+
+</html>

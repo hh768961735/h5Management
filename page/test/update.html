@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../../css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+    <link href="../../css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+
+    <link href="../../css/animate.min.css" rel="stylesheet">
+    <link href="../../css/style.min.css?v=4.0.0" rel="stylesheet">
+    <link href="../../css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link href="../../css/plugins/fileinput/fileinput.css" rel="stylesheet">
+    <link href="../../css/plugins/datetimepicker/bootstrap-datetimepicker.min.css">
+
+    <!--<link rel="stylesheet" href="../../css/plugins/editor.md/style.css" />-->
+    <link rel="stylesheet" href="../../css/plugins/editor.md/editormd.css" />
+    <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon" />
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>职工管理</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form class="form-horizontal m-t" id="dataForm" onsubmit="return false">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">员工名称：</label>
+                                    <div class="col-sm-8">
+                                        <input id="name" name="name" v-model="obj.name" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">员工地址：</label>
+                                    <div class="col-sm-8">
+                                        <input id="address" name="name" v-model="obj.address" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">员工邮箱：</label>
+                                    <div class="col-sm-8">
+                                        <input id="email" name="name" v-model="obj.email" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">所属领导：</label>
+                                    <div class="col-sm-8">
+                                        <select id="albumId" name="albumId" v-model="obj.albumId" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                            <option v-for = "album in albums" :value="album.id">{{album.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">排序值：</label>
+                                    <div class="col-sm-8">
+                                        <input id="sortNum" name="sortNum" v-model="obj.sortNum" class="form-control" type="number" aria-required="true" aria-invalid="true" class="error">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">员工描述：</label>
+                                    <div class="col-sm-8">
+                                        <div id="test-editormd"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-8 col-sm-offset-3">
+                                        <button class="btn btn-primary" type="submit" @click="saveModel">提交</button>
+                                    </div>
+                                </div>
+                                <!--<div v-if="showLoadFlag" style="position: fixed;left: 0px;top: 0px;right: 0px;bottom: 0px;background: rgba(0, 0, 0, 0.4);width: 100%;height: 100%;padding-top: 400px;">-->
+                                    <!--<div class="sk-spinner sk-spinner-wave">-->
+                                        <!--<div class="sk-rect1"></div>-->
+                                        <!--<div class="sk-rect2"></div>-->
+                                        <!--<div class="sk-rect3"></div>-->
+                                        <!--<div class="sk-rect4"></div>-->
+                                        <!--<div class="sk-rect5"></div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../js/bootstrap.min.js?v=3.3.5"></script>
+    <script src="../../js/plugins/layer/layer.min.js"></script>
+    <script src="../../js/content.min.js"></script>
+    <script src="../../js/welcome.min.js"></script>
+    <script src="../../js/common.js"></script>
+
+    <script src="../../js/plugins/toastr/toastr.min.js"></script>
+    <script src="../../js/plugins/fileinput/fileinput.js"></script>
+    <script src="../../js/plugins/fileinput/locales/zh.js"></script>
+    <script src="../../js/plugins/datetimepicker/bootstrap-datetimepicker.js"></script>
+    <script src="../../js/plugins/datetimepicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+    <script src="../../js/qiniu.min.js"></script>
+
+    <script src="../../js/jquery.min.js"></script>
+    <script src="../../js/plugins/editor.md/editormd.js"></script>
+
+    <script src="../../js/vue/vue.js"></script>
+    <script src="../../js/request.js"></script>
+    <script>
+        var editor;
+        new Vue({
+            el: '#dataForm',
+            data: {
+                obj: {
+                    id: '',
+                    albumId: '',
+                    name: '',
+                    address: '',
+                    brief: '',
+                    briefMd: '',
+                    sortNum: 10,
+                    pptUrl: '',
+                    extensionUrl: '',
+                    pptStatus: 0,
+                },
+                albums:[],
+                pptPicUrls:[],
+                showLoadFlag: false
+            },
+            mounted: function(){
+                var that = this;
+                this.obj.id = getParam("id");
+                var editorConfig = {
+                    placeholder: '请输入课程简介',
+                    width: "100%",
+                    height: 600,
+                    path : '../../js/plugins/editor.md/lib/',
+                    markdown : '',
+                    codeFold : true,
+                    saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
+                    searchReplace : true,
+                    htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+                    emoji : true,
+                    taskList : true,
+                    tocm            : true,         // Using [TOCM]
+                    tex : true,                   // 开启科学公式TeX语言支持，默认关闭
+                    flowChart : true,             // 开启流程图支持，默认关闭
+                    sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
+                    imageUpload : true,
+                    imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                   // imageUploadURL : BASE_URL + "lvb/file/upload",
+                };
+                $.get('https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage', function(data){
+                    if (data.code != 0){
+                        that.obj = data.data.projects;
+                        console.log(that.obj);
+                    } else{
+                        toastr.error("出错了！");
+                    }
+                })
+            },
+            methods:{
+                saveModel: function(){
+                    var that = this;
+                    if (this.obj.name == null || this.obj.name == ""){
+                        toastr.error("名称不能为空！");
+                        return;
+                    }
+
+                    if (this.obj.address == null || this.obj.address == ""){
+                        toastr.error("地址不能为空！");
+                        return;
+                    }
+
+                    if (this.obj.email == null || this.obj.email == ""){
+                        toastr.error("邮箱不能为空！");
+                        return;
+                    }
+                    //
+                    // if (this.obj.albumId == null || this.obj.albumId == ""){
+                    //     toastr.error("领导不能为空！");
+                    //     return;
+                    // }
+                    if (this.obj.id != null){
+                        request({
+                            url : "https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/updateUserMessage",
+                            data: this.obj,
+                            success: function(res){
+                                if (res.status == 200 && res.data.code == 0){
+                                    toastr.success("更新成功！");
+                                    window.location.href = "index.html?albumId="+that.obj.albumId;
+                                } else{
+                                    toastr.error(res.data.data.msg)
+                                }
+                            }
+                        })
+                    } else{
+                        request({
+                            url : "lvb/course/addCourse",
+                            data: this.obj,
+                            success: function(res){
+                                if (res.status == 200 && res.data.code == 0){
+                                    toastr.success("添加成功！");
+                                    window.location.href = "index.html?albumId="+that.obj.albumId;
+                                } else{
+                                    toastr.error(res.data.data.msg)
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
