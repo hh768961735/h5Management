@@ -48,6 +48,9 @@
                             <button id="btn_add" type="button" class="btn btn-primary" style="position: relative;left: 30px;top: -25px">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true" ></span>新增
                             </button>
+                            <button id="btn_ouput" type="button" class="btn btn-primary" style="position: relative;left: 30px;top: -25px;margin-left: 50px">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true" onclick="tableToExcel()"></span>下载
+                            </button>
                         </div>
                         <table id="tb_content"></table>
                     </div>
@@ -147,6 +150,9 @@
                                     field: 'name',
                                     title: '用户名称',
                                 },{
+                                    field: 'gender',
+                                    title: '性别',
+                                }, {
                                     field: 'address',
                                     title: '地址'
                                 },{
@@ -271,46 +277,23 @@
                                 }
                             },{
                                 field: 'name',
-                                title: '课程名称',
+                                title: '用户名称',
                             },{
-                                field: 'imgUrl',
-                                title: '封面图片',
-                                formatter: function (value, row, index) {
-                                    value = '<img style="width:200px" src="'+row.imgUrl+'" />';
-                                    return value;
-                                }
+                                field: 'address',
+                                title: '地址'
                             },{
-                                field: 'lecturer',
-                                title: '讲师'
-                            },{
-                                field: 'courseType',
-                                title: '课程类型',
-                                formatter: function (value, row, index) {
-                                    var value;
-                                    switch (row.courseType) {
-                                        case 0:
-                                            value = '视频';
-                                            break;
-                                        case 1:
-                                            value = '音频';
-                                            break;
-                                    }
-
-                                    return value;
-                                }
-                            },{
-                                field: 'pptStatus',
-                                title: '是否有PPT',
+                                field: 'vipStatus',
+                                title: '是否VIP',
                                 formatter: function (value, row, index) {
                                     var value = "否";
-                                    if (row.pptStatus == 1) {
+                                    if (row.vipStatus == 1) {
                                         value = "是";
                                     }
                                     return value;
                                 }
                             },{
-                                field: 'sortNum',
-                                title: '排序值'
+                                field: 'email',
+                                title: '邮箱'
                             },{
                                 field: 'id',
                                 title: '操作',
@@ -372,14 +355,78 @@
             }
         }
     })
+    //导出Excle
+    function tableToExcel() {
+        $.ajax({
+            url:"https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage" ,
+            type: 'GET',
+            dataType: 'JSON',
+            data: {
+            },
+            success: function(response) {
+                var userData = [];
+                var list = response.data.projects;
+                if (list.length == 0){
+                    document.getElementById("tableToExcel").disabled=true;
+                }
+                console.log(typeof list[0].vipStatus);
+                list.forEach(function (item) {
+                    var _obj={
+                        name:item.name,
+                        email:item.email,
+                        address:item.address,
+                        vipStatus:vipStatus(item.vipStatus)
+                    }
+                    userData.push(_obj);
+                })
+                console.log(userData);
+                var str = '<tr><td>姓名</td><td>邮箱</td><td>家庭住址</td><td>vip状态</td></tr>';
+                for (let i = 0; i < userData.length; i++) {
+                    str += '<tr>';
+                    for (let item in userData[i]) {
+                        //增加\t为了不让表格显示科学计数法或者其他格式
+                        str += `<td>${ userData[i][item] + '\t'}</td>`;
+                    }
+                    str += '</tr>';
+                }
+                <!-- Worksheet名 -->
+                var worksheet = 'Sheet1'
+                var uri = 'data:application/vnd.ms-excel;base64,';
+
+                //下载的表格模板数据
+                var template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+                    xmlns:x="urn:schemas-microsoft-com:office:excel"
+                    xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                    </head><body><table>${str}</table></body></html>`;
+                //下载模板
+                window.location.href = uri + base64(template);
+            },
+            error: function(){
+
+            }
+        })
+    }
+   
+    function vipStatus(value) {
+        if(value == 'false'){
+            value = '否';
+        }else {
+            value = '是';
+        }
+        return value;
+    }
+    //输出base64编码
+    function base64 (s) { return window.btoa(unescape(encodeURIComponent(s))) };
     function getModel(id){
         window.location.href = "update.html?id="+id;
+        // console.log(id);
     }
     function delModel(id){
         var r = confirm("确认删除么？")
         if (r == true) {
             request({
-                url: 'lvb/course/delCourse/' + id,
+                url: 'https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage' + id,
                 data:{},
                 success: function (res) {
                     if (res.status == 200 && res.data.code == 0){
