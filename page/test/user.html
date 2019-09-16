@@ -99,19 +99,19 @@
         mounted:function () {
             var that = this;
             $.ajax({
-                url:'https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage',
+                url: '../../json/user.json',
                 method:"GET",
                 dataType:"Json",
                 data: {
 
                 },
                 success:function (response) {
-                    //console.log(response);
-                    that.albums = response.data.projects;
-                    //console.log(that.albums);
+                    console.log(response);
+                    that.albums = response.data;
+                    console.log(that.albums);
                     that.obj.albumId =  that.albums[0].id;
                     //console.log(that.obj.albumId);
-                    var url = "https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage";
+                    var url = "../../json/user.json";
                     var TableInit = function () {
                         var oTableInit = new Object();
                         //初始化Table
@@ -182,8 +182,8 @@
                                 responseHandler: function (data) {
                                     // console.log(data);
                                     return {
-                                        total: data.data.projects.length,
-                                        rows: data.data.projects
+                                        total: data.data.length,
+                                        rows: data.data
                                     }
                                 }
                             });
@@ -241,7 +241,7 @@
                 }
                 var albumId = this.obj.albumId;
                 console.log(albumId);
-                var url = "https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage";
+                var url = "https://www.easy-mock.com/mock/5d6cd30ab82c1230424f6979/getUserMessage";
                 var TableInit = function () {
                     var oTableInit = new Object();
                     oTableInit.Init = function () {
@@ -358,7 +358,7 @@
     //导出Excle
     function tableToExcel() {
         $.ajax({
-            url:"https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage" ,
+            url:"https://www.easy-mock.com/mock/5d6cd30ab82c1230424f6979/getUserMessage" ,
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -426,7 +426,7 @@
         var r = confirm("确认删除么？")
         if (r == true) {
             request({
-                url: 'https://www.easy-mock.com/mock/5d2e98a5a82524794453dcce/getUserMessage' + id,
+                url: 'https://www.easy-mock.com/mock/5d6cd30ab82c1230424f6979/getUserMessage' + id,
                 data:{},
                 success: function (res) {
                     if (res.status == 200 && res.data.code == 0){
